@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Minimal Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 4px;">
+  <div>
+    <h1 style="margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--text-primary);">
+      Overview Dashboard
+    </h1>
+  </div>
+  
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border); padding: 5px 10px; border-radius: var(--radius); font-size: 0.78rem;" class="mono">
+      <i class="far fa-clock" style="color: var(--accent); margin-right: 6px;"></i><span id="liveClockDisplay">--:--:-- UTC</span>
+    </div>
+    <span style="font-size: 0.75rem; background: var(--accent-bg); color: var(--accent); padding: 5px 10px; border-radius: var(--radius); font-weight: 600;" class="mono">
+      PASSIVE DIODE
+    </span>
+  </div>
+</div>
+
+<!-- Metric Strip -->
+<div class="grid-3">
+  
+  <div class="card metric">
+    <h3>Throughput</h3>
+    <p id="statMbps" class="mono" style="color: var(--accent);">9,840.5 <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">Mbps</span></p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      <span id="statFps">485,240</span> flows/sec
+    </div>
+  </div>
+
+  <div class="card metric">
+    <h3>Ingested Flows</h3>
+    <p id="statTotalFlows" class="mono">184.9M</p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      Total passive stream
+    </div>
+  </div>
+
+  <div class="card metric warning">
+    <h3>High / Critical Alerts</h3>
+    <p id="statHighCrit" class="mono" style="color: var(--severity-critical);">160</p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      Requires triage
+    </div>
+  </div>
+
+  <div class="card metric">
+    <h3>Total Incidents</h3>
+    <p id="statTotalAlerts" class="mono">202</p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      6 Threat classes
+    </div>
+  </div>
+
+</div>
+
+<!-- Charts Grid -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+  
+  <!-- Attack Timeline -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);">
+        Incident Timeline
+      </h2>
+      <span style="font-size: 0.72rem; color: var(--text-muted);" class="mono">Last 6 Hours</span>
+    </div>
+    <div style="height: 240px; position: relative;">
+      <canvas id="timelineChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Threat Class Donut -->
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);">
+        Threat Distribution
+      </h2>
+      <span style="font-size: 0.72rem; color: var(--text-muted);" class="mono">6 Classes</span>
+    </div>
+    <div style="height: 240px; position: relative;">
+      <canvas id="donutChart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<!-- Lower Grid: Severity Breakdown & Live Feed -->
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px;">
+
+  <div class="card">
+    <h2 style="margin-top: 0; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+      Severity Breakdown
+    </h2>
+    
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      
+      <div style="background: var(--severity-critical-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="color: var(--severity-critical); font-weight: 700; font-size: 0.82rem;" class="mono">CRITICAL</span>
+          <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 1px;">C2, Exfil, DDoS</div>
+        </div>
+        <span id="sevCritCount" class="mono" style="font-size: 1.3rem; font-weight: 700; color: var(--severity-critical);">72</span>
+      </div>
+
+      <div style="background: var(--severity-high-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="color: var(--severity-high); font-weight: 700; font-size: 0.82rem;" class="mono">HIGH</span>
+          <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 1px;">TLS Anomaly, DNS Tunnel</div>
+        </div>
+        <span id="sevHighCount" class="mono" style="font-size: 1.3rem; font-weight: 700; color: var(--severity-high);">88</span>
+      </div>
+
+      <div style="background: var(--severity-medium-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="color: var(--severity-medium); font-weight: 700; font-size: 0.82rem;" class="mono">MEDIUM</span>
+          <div style="font-size: 0.73rem; color: var(--text-muted); margin-top: 1px;">Recon Scan</div>
+        </div>
+        <span id="sevMedCount" class="mono" style="font-size: 1.3rem; font-weight: 700; color: var(--severity-medium);">42</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h2 style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary);">
+        Live Ingress Feed
+      </h2>
+      <a href="/alerts" style="font-size: 0.8rem; color: var(--accent); font-weight: 500;" class="mono">View All &rarr;</a>
+    </div>
+
+    <div style="max-height: 210px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius);" id="liveFeedContainer">
+      <div style="text-align: center; color: var(--text-muted); padding: 20px;" class="mono">
+        Loading...
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let timelineChartInst = null;
+  let donutChartInst = null;
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('liveClockDisplay').textContent = now.toUTCString().split(' ')[4] + " UTC";
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function loadOverviewStats() {
+    fetch('/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('statTotalAlerts').textContent = data.total_alerts;
+        document.getElementById('statHighCrit').textContent = data.high_critical_count;
+        
+        if (data.severity_counts) {
+          document.getElementById('sevCritCount').textContent = data.severity_counts.critical || 0;
+          document.getElementById('sevHighCount').textContent = data.severity_counts.high || 0;
+          document.getElementById('sevMedCount').textContent = data.severity_counts.medium || 0;
+        }
+
+        renderDonutChart(data.threat_class_counts);
+      });
+
+    fetch('/api/alerts')
+      .then(res => res.json())
+      .then(alerts => {
+        renderLiveFeed(alerts.slice(0, 15));
+        renderTimelineChart(alerts);
+      });
+  }
+
+  function getThreatBadgeClass(tc) {
+    const map = {
+      'ddos': 'badge-ddos',
+      'c2_beaconing': 'badge-c2',
+      'dga_dns_tunnel': 'badge-dns',
+      'encrypted_malware': 'badge-malware',
+      'recon_scan': 'badge-recon',
+      'exfiltration': 'badge-exfil'
+    };
+    return map[tc] || 'badge-recon';
+  }
+
+  function formatThreatName(tc) {
+    const map = {
+      'ddos': 'Volumetric DDoS',
+      'c2_beaconing': 'C2 Beaconing',
+      'dga_dns_tunnel': 'DGA / DNS Tunnel',
+      'encrypted_malware': 'Encrypted Malware',
+      'recon_scan': 'Recon / Port Scan',
+      'exfiltration': 'Data Exfiltration'
+    };
+    return map[tc] || tc;
+  }
+
+  function renderLiveFeed(alerts) {
+    const container = document.getElementById('liveFeedContainer');
+    if (!alerts.length) {
+      container.innerHTML = '<div style="color: var(--text-muted); text-align:center; padding: 15px;">No alerts</div>';
+      return;
+    }
+
+    container.innerHTML = alerts.map(a => `
+      <div style="padding: 9px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer;" 
+           onclick="window.location.href='/alerts?search=${a.flow_id}'">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 2px;">
+            <span class="badge-threat ${getThreatBadgeClass(a.threat_class)}">${formatThreatName(a.threat_class)}</span>
+            <span class="mono" style="font-weight: 600; color: var(--text-primary); font-size: 0.83rem;">${a.flow_id}</span>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-secondary);" class="mono">
+            ${a.source_ip} &rarr; ${a.dest_ip_or_domain}
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--severity-${a.severity});" class="mono">${a.severity}</span>
+          <div style="font-size: 0.7rem; color: var(--text-muted);" class="mono">${a.timestamp.substring(11, 19)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderDonutChart(counts) {
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    if (donutChartInst) donutChartInst.destroy();
+
+    const labels = ['DDoS', 'C2 Beaconing', 'DNS Tunnel', 'Encrypted Malware', 'Recon Scan', 'Exfiltration'];
+    const dataVals = [
+      counts['ddos'] || 0,
+      counts['c2_beaconing'] || 0,
+      counts['dga_dns_tunnel'] || 0,
+      counts['encrypted_malware'] || 0,
+      counts['recon_scan'] || 0,
+      counts['exfiltration'] || 0
+    ];
+
+    donutChartInst = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: dataVals,
+          backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#a855f7', '#38bdf8', '#ec4899'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { font: { family: 'Inter', size: 10.5 } }
+          }
+        }
+      }
+    });
+  }
+
+  function renderTimelineChart(alerts) {
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    if (timelineChartInst) timelineChartInst.destroy();
+
+    const timeSlots = ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00'];
+    const reconData = [12, 18, 24, 15, 20, 22, 19, 25];
+    const ddosData = [8, 14, 28, 42, 18, 12, 15, 20];
+
+    timelineChartInst = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeSlots,
+        datasets: [
+          { label: 'Recon Scan', data: reconData, borderColor: '#38bdf8', tension: 0.2, fill: false, borderWidth: 2 },
+          { label: 'DDoS', data: ddosData, borderColor: '#ef4444', tension: 0.2, fill: false, borderWidth: 2 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono' } } },
+          y: { ticks: { font: { family: 'JetBrains Mono' } } }
+        },
+        plugins: {
+          legend: { labels: { font: { family: 'Inter', size: 10.5 } } }
+        }
+      }
+    });
+  }
+
+  loadOverviewStats();
+});
+</script>
+{% endblock %}

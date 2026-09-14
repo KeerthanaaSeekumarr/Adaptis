@@ -1,0 +1,341 @@
+{
+  "chatbot_name": "Sentinel Security Companion",
+  "version": "1.0",
+
+  "intents": [
+
+    {
+      "tag": "greeting",
+      "patterns": [
+        "hello",
+        "hi",
+        "hey",
+        "good morning",
+        "good evening",
+        "good afternoon",
+        "hello bot",
+        "hi sentinel",
+        "is anyone there",
+        "start analysis"
+      ],
+      "responses": [
+        "Hello. Sentinel Security Companion ready.",
+        "Hi analyst. How can I assist?",
+        "Greetings. Ask me about cyber attacks or suspicious traffic."
+      ]
+    },
+
+    {
+      "tag": "sql_injection_info",
+      "patterns": [
+        "what is sql injection",
+        "explain sql injection",
+        "what does sqli mean",
+        "how sql injection works",
+        "example of sql injection",
+        "database injection attack"
+      ],
+      "responses": [
+        "SQL Injection manipulates database queries through malicious input.",
+        "SQL Injection occurs when user input is executed as SQL code.",
+        "Typical payload: ' OR 1=1 --"
+      ]
+    },
+
+    {
+      "tag": "sql_injection_payloads",
+      "patterns": [
+        "' or 1=1 --",
+        "' OR '1'='1",
+        "' OR 1=1#",
+        "union select password",
+        "union select username,password",
+        "drop table users",
+        "database dump attempt",
+        "sqlmap pattern"
+      ],
+      "responses": [
+        "Possible SQL Injection payload detected.",
+        "Database manipulation pattern detected.",
+        "Suspicious SQL query structure."
+      ]
+    },
+
+    {
+      "tag": "xss_info",
+      "patterns": [
+        "what is xss",
+        "explain cross site scripting",
+        "xss meaning",
+        "how xss attack works",
+        "types of xss",
+        "stored xss",
+        "reflected xss"
+      ],
+      "responses": [
+        "XSS injects malicious scripts into webpages.",
+        "Cross Site Scripting executes attacker scripts in a user's browser.",
+        "Common payload example: <script>alert(1)</script>"
+      ]
+    },
+
+    {
+      "tag": "xss_payloads",
+      "patterns": [
+        "<script>alert(1)</script>",
+        "<script>",
+        "javascript:alert",
+        "img src=x onerror=alert(1)",
+        "svg onload=alert(1)",
+        "document.cookie steal",
+        "malicious javascript injection"
+      ],
+      "responses": [
+        "Possible XSS payload detected.",
+        "Script injection pattern identified.",
+        "Potential Cross Site Scripting attack."
+      ]
+    },
+
+    {
+      "tag": "csrf_info",
+      "patterns": [
+        "what is csrf",
+        "csrf meaning",
+        "cross site request forgery",
+        "csrf attack example",
+        "csrf explanation"
+      ],
+      "responses": [
+        "CSRF tricks authenticated users into executing unwanted actions.",
+        "CSRF exploits trust between browser sessions and servers.",
+        "Mitigation includes CSRF tokens."
+      ]
+    },
+
+    {
+      "tag": "ssrf_info",
+      "patterns": [
+        "what is ssrf",
+        "server side request forgery",
+        "ssrf meaning",
+        "how ssrf works",
+        "ssrf vulnerability example"
+      ],
+      "responses": [
+        "SSRF forces servers to make unintended requests.",
+        "SSRF can access internal services or metadata endpoints.",
+        "Common targets include internal IP addresses."
+      ]
+    },
+
+    {
+      "tag": "ssrf_payloads",
+      "patterns": [
+        "http://127.0.0.1",
+        "http://localhost",
+        "http://169.254.169.254",
+        "internal metadata request",
+        "server internal request"
+      ],
+      "responses": [
+        "Possible SSRF attempt detected.",
+        "Internal service access pattern.",
+        "Suspicious server-side request."
+      ]
+    },
+
+    {
+      "tag": "xxe_info",
+      "patterns": [
+        "what is xxe",
+        "xml external entity attack",
+        "xxe vulnerability",
+        "xxe meaning"
+      ],
+      "responses": [
+        "XXE exploits XML parsers that allow external entity processing.",
+        "XXE can expose system files or trigger SSRF.",
+        "Disable external entities to mitigate XXE."
+      ]
+    },
+
+    {
+      "tag": "xxe_payloads",
+      "patterns": [
+        "<!DOCTYPE foo>",
+        "<!ENTITY xxe SYSTEM",
+        "xml entity injection",
+        "external entity request"
+      ],
+      "responses": [
+        "Possible XXE payload detected.",
+        "External entity processing attempt.",
+        "XML parser exploitation pattern."
+      ]
+    },
+
+    {
+      "tag": "phishing_info",
+      "patterns": [
+        "what is phishing",
+        "phishing attack meaning",
+        "phishing email example",
+        "detect phishing"
+      ],
+      "responses": [
+        "Phishing tricks users into revealing credentials.",
+        "Phishing often uses fake login pages.",
+        "Check domain legitimacy and email headers."
+      ]
+    },
+
+    {
+      "tag": "phishing_indicators",
+      "patterns": [
+        "paypal-login-security.com",
+        "bank verification link",
+        "fake login page",
+        "credential harvesting site"
+      ],
+      "responses": [
+        "Possible phishing attempt detected.",
+        "Suspicious domain structure.",
+        "Verify domain authenticity."
+      ]
+    },
+
+    {
+      "tag": "network_analysis",
+      "patterns": [
+        "analyze this packet",
+        "network intrusion detected",
+        "suspicious traffic",
+        "abnormal network behavior",
+        "possible intrusion",
+        "traffic anomaly"
+      ],
+      "responses": [
+        "Suspicious network activity detected.",
+        "Possible intrusion attempt.",
+        "Provide packet capture or logs for analysis."
+      ]
+    },
+
+    {
+      "tag": "recent_attacks",
+      "patterns": [
+        "recent cyber attacks",
+        "latest cyber threats",
+        "major cyber attacks after 2021",
+        "modern attack techniques"
+      ],
+      "responses": [
+        "Recent attacks include Log4Shell exploitation, ransomware campaigns, and supply chain compromises.",
+        "Modern threats use automation, AI phishing, and zero-day vulnerabilities.",
+        "Cloud infrastructure attacks are increasing."
+      ]
+    },
+
+    {
+      "tag": "attack_identification",
+      "patterns": [
+        "identify this attack",
+        "what attack is this",
+        "classify attack",
+        "attack detection"
+      ],
+      "responses": [
+        "Provide the payload or traffic log for analysis.",
+        "Attack identification depends on payload patterns.",
+        "Analyzing request structure can reveal attack type."
+      ]
+    },
+
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "bye",
+        "goodbye",
+        "exit",
+        "close chatbot"
+      ],
+      "responses": [
+        "Session closed. Stay secure.",
+        "Goodbye analyst.",
+        "Sentinel Security Companion signing off."
+      ]
+    },
+    {
+      "tag": "zero_day_info",
+      "patterns": [
+        "what is a zero day",
+        "zero day exploit",
+        "0 day vulnerability",
+        "explain zero-day"
+      ],
+      "responses": [
+        "A zero-day exploit attacks an unknown software vulnerability.",
+        "Zero-days have no official patches available yet.",
+        "Defense relies on anomaly detection and behavioral analysis rather than static signatures."
+      ]
+    },
+    {
+      "tag": "ransomware_info",
+      "patterns": [
+        "what is ransomware",
+        "ransomware meaning",
+        "how ransomware works",
+        "file encryption malware"
+      ],
+      "responses": [
+        "Ransomware encrypts user files and demands payment for the decryption key.",
+        "Modern ransomware often includes data exfiltration for double-extortion.",
+        "Regular offline backups are the best defense against ransomware."
+      ]
+    },
+    {
+      "tag": "siem_basics",
+      "patterns": [
+        "what is a siem",
+        "explain siem",
+        "security information and event management",
+        "what do siems do"
+      ],
+      "responses": [
+        "SIEM (Security Information and Event Management) aggregates and analyzes log data from across the network.",
+        "SIEMs provide real-time correlation for security alerts.",
+        "Sentinel acts as a lightweight SIEM and SOC platform."
+      ]
+    },
+    {
+      "tag": "mitre_attck",
+      "patterns": [
+        "what is mitre att&ck",
+        "mitre framework",
+        "attack framework",
+        "mitre explain"
+      ],
+      "responses": [
+        "MITRE ATT&CK is a knowledge base of adversary tactics and techniques.",
+        "It categorizes behavior from initial access to exfiltration.",
+        "Security teams use it to model threats and map defensive coverage."
+      ]
+    },
+    {
+      "tag": "incident_response_steps",
+      "patterns": [
+        "what are the phases of incident response",
+        "incident response steps",
+        "how to respond to a breach",
+        "ir phases"
+      ],
+      "responses": [
+        "The standard IR phases are: Preparation, Identification, Containment, Eradication, Recovery, and Lessons Learned.",
+        "Containment is critical to stop the spread of an active threat.",
+        "Follow your organization's playbooks during an incident."
+      ]
+    }
+
+  ]
+}

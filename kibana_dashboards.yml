@@ -1,0 +1,64 @@
+# Sentinel Defense Platform - Kibana Dashboards Reference
+# Note: Import these via Kibana UI -> Stack Management -> Saved Objects -> Import
+
+attributes:
+  title: "Sentinel SOC Dashboard"
+  description: "Advanced threat hunting and visualization dashboard for the Sentinel Defense Platform"
+  hits: 0
+  visualization:
+    - title: "Threats by Type"
+      type: "pie"
+      params:
+        aggs:
+          - id: 1
+            type: "terms"
+            params:
+              field: "attack_type.keyword"
+              size: 10
+              order: "desc"
+    
+    - title: "Average Threat Score over Time"
+      type: "line"
+      params:
+        aggs:
+          - id: 1
+            type: "date_histogram"
+            params:
+              field: "timestamp"
+              interval: "auto"
+          - id: 2
+            type: "avg"
+            params:
+              field: "threat_score"
+              
+    - title: "Top Attack Source IPs"
+      type: "table"
+      params:
+        aggs:
+          - id: 1
+            type: "terms"
+            params:
+              field: "source_ip"
+              size: 20
+              
+    - title: "Highly Obfuscated Payloads"
+      type: "metric"
+      params:
+        aggs:
+          - id: 1
+            type: "max"
+            params:
+              field: "obfuscation_score"
+          - id: 2
+            type: "filter"
+            params:
+              query: "obfuscation_score >= 0.7"
+              
+    - title: "Threat Intent Distribution"
+      type: "bar"
+      params:
+        aggs:
+          - id: 1
+            type: "terms"
+            params:
+              field: "attack_intent.keyword"

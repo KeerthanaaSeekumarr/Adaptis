@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Minimal Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 4px;">
+  <div>
+    <h1 style="margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--text-primary);">
+      Forensic Alert Log
+    </h1>
+  </div>
+  <div class="mono" style="font-size: 0.78rem;">
+    <span id="alertCountBadge" style="background: var(--bg-card); border: 1px solid var(--border); padding: 4px 10px; border-radius: var(--radius); color: var(--accent); font-weight: 600;">
+      0 Incidents Filtered
+    </span>
+  </div>
+</div>
+
+<!-- Filter Controls -->
+<div class="card" style="padding: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  
+  <div style="flex: 1; min-width: 220px;">
+    <input type="text" id="searchInput" placeholder="Search Flow ID, IP address, or domain..." 
+           style="width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 10px; color: var(--text-primary); font-size: 0.83rem;" class="mono">
+  </div>
+
+  <div>
+    <select id="filterThreatClass" style="background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 10px; color: var(--text-primary); font-size: 0.8rem;" class="mono">
+      <option value="">All Threat Classes (6)</option>
+      <option value="ddos">Volumetric DDoS</option>
+      <option value="c2_beaconing">Botnet C2 Beaconing</option>
+      <option value="dga_dns_tunnel">DGA / DNS Tunnel</option>
+      <option value="encrypted_malware">Encrypted Malware</option>
+      <option value="recon_scan">Recon / Port Scan</option>
+      <option value="exfiltration">Data Exfiltration</option>
+    </select>
+  </div>
+
+  <div>
+    <select id="filterSeverity" style="background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 10px; color: var(--text-primary); font-size: 0.8rem;" class="mono">
+      <option value="">All Severities</option>
+      <option value="critical">Critical</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+    </select>
+  </div>
+
+  <button id="resetFiltersBtn" style="background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 6px 12px; border-radius: var(--radius); cursor: pointer; font-size: 0.78rem;" class="mono">
+    Reset
+  </button>
+</div>
+
+<!-- Table Container -->
+<div class="card table-container" style="padding: 0;">
+  <table id="packetTable">
+    <thead>
+      <tr>
+        <th style="width: 110px;">Timestamp</th>
+        <th style="width: 130px;">Flow ID</th>
+        <th style="width: 160px;">Threat Class</th>
+        <th>Source &rarr; Destination IP / Domain</th>
+        <th style="width: 120px;">Confidence</th>
+        <th>Evidence Tags</th>
+        <th style="width: 100px;">Status</th>
+        <th style="width: 30px;"></th>
+      </tr>
+    </thead>
+    <tbody id="alertsTbody">
+      <tr>
+        <td colspan="8" style="text-align: center; padding: 30px; color: var(--text-muted);" class="mono">
+          Loading flow records...
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  let allAlerts = [];
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialSearch = urlParams.get('search') || '';
+  if (initialSearch) {
+    document.getElementById('searchInput').value = initialSearch;
+  }
+
+  function fetchAlerts() {
+    const threatClass = document.getElementById('filterThreatClass').value;
+    const severity = document.getElementById('filterSeverity').value;
+    const search = document.getElementById('searchInput').value;
+
+    let url = `/api/alerts?`;
+    if (threatClass) url += `threat_class=${encodeURIComponent(threatClass)}&`;
+    if (severity) url += `severity=${encodeURIComponent(severity)}&`;
+    if (search) url += `search=${encodeURIComponent(search)}&`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        allAlerts = data;
+        document.getElementById('alertCountBadge').textContent = `${data.length} Filtered`;
+        renderAlertsTable(data);
+      });
+  }
+
+  function getBadgeClass(tc) {
+    const map = {
+      'ddos': 'badge-ddos',
+      'c2_beaconing': 'badge-c2',
+      'dga_dns_tunnel': 'badge-dns',
+      'encrypted_malware': 'badge-malware',
+      'recon_scan': 'badge-recon',
+      'exfiltration': 'badge-exfil'
+    };
+    return map[tc] || 'badge-recon';
+  }
+
+  function getThreatLabel(tc) {
+    const map = {
+      'ddos': 'Volumetric DDoS',
+      'c2_beaconing': 'C2 Beaconing',
+      'dga_dns_tunnel': 'DGA / DNS Tunnel',
+      'encrypted_malware': 'Encrypted Malware',
+      'recon_scan': 'Recon / Port Scan',
+      'exfiltration': 'Data Exfiltration'
+    };
+    return map[tc] || tc;
+  }
+
+  function renderAlertsTable(alerts) {
+    const tbody = document.getElementById('alertsTbody');
+    if (!alerts.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 30px; color: var(--text-muted);" class="mono">No matching records found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = alerts.map((a, idx) => {
+      const confColorClass = a.confidence >= 90 ? 'confidence-high' : (a.confidence >= 80 ? 'confidence-medium' : 'confidence-low');
+      const tags = (a.evidence || []).map(t => `<span class="badge-lab" style="margin-right: 4px;">${t}</span>`).join('');
+
+      return `
+        <tr id="row-${a.id}" onclick="toggleEvidenceRow('${a.id}')" style="cursor: pointer;">
+          <td class="mono" style="font-size: 0.76rem; color: var(--text-muted);">${a.timestamp.substring(11, 19)}</td>
+          <td class="mono" style="font-weight: 600;">${a.flow_id}</td>
+          <td>
+            <span class="badge-threat ${getBadgeClass(a.threat_class)}">${getThreatLabel(a.threat_class)}</span>
+          </td>
+          <td class="mono" style="font-size: 0.8rem;">
+            <span style="color: var(--accent);">${a.source_ip}</span> &rarr; <span>${a.dest_ip_or_domain}</span>
+          </td>
+          <td>
+            <div class="confidence-gauge">
+              <span class="mono" style="font-size: 0.75rem;">${a.confidence}%</span>
+              <div class="confidence-bar-bg">
+                <div class="confidence-bar-fill ${confColorClass}" style="width: ${a.confidence}%;"></div>
+              </div>
+            </div>
+          </td>
+          <td>${tags}</td>
+          <td>
+            <span class="mono" style="font-size: 0.72rem; text-transform: uppercase;">
+              ${a.status.replace('_', ' ')}
+            </span>
+          </td>
+          <td style="text-align: right; color: var(--text-muted);">
+            <i class="fas fa-chevron-down" id="icon-${a.id}"></i>
+          </td>
+        </tr>
+        <tr id="expand-${a.id}" style="display: none;">
+          <td colspan="8" style="padding: 0 12px 12px 12px; background: var(--bg-body);">
+            <div class="evidence-panel">
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 10px;">
+                "${getPlainLanguageExplanation(a)}"
+              </div>
+
+              <div class="evidence-grid">
+                <div class="evidence-box">
+                  <table class="kv-table">
+                    ${renderFeatureKV(a)}
+                  </table>
+                </div>
+
+                <div class="evidence-box">
+                  <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">
+                    <strong>Diode Note:</strong> ${a.observability_note}
+                  </div>
+                  <table class="kv-table">
+                    <tr><td class="key">Confidence Score:</td><td class="val" style="font-weight:700;">${a.confidence}%</td></tr>
+                    <tr><td class="key">Payload Access:</td><td class="val">Zero Decryption (Metadata Only)</td></tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function getPlainLanguageExplanation(a) {
+    if (a.threat_class === 'c2_beaconing') return "Periodic connections to small destination set with low jitter.";
+    if (a.threat_class === 'dga_dns_tunnel') return "High entropy / n-gram anomaly in DNS query string.";
+    if (a.threat_class === 'ddos') return "High ingress packet rate burst targeted at internal host.";
+    if (a.threat_class === 'encrypted_malware') return "TLS ClientHello metadata matched malware fingerprint database.";
+    if (a.threat_class === 'recon_scan') return "Port fan-out across multiple ports from single source.";
+    if (a.threat_class === 'exfiltration') return "Asymmetric outbound/inbound byte ratio.";
+    return "Metadata pattern matched threat heuristic.";
+  }
+
+  function renderFeatureKV(a) {
+    const detail = a.evidence_detail || {};
+    let html = '';
+    if (detail.flow_stats) {
+      html += `<tr><td class="key">Packets Out / In:</td><td class="val">${detail.flow_stats.packets_out} / ${detail.flow_stats.packets_in}</td></tr>`;
+    }
+    if (detail.shannon_entropy) {
+      html += `<tr><td class="key">Shannon Entropy:</td><td class="val">${detail.shannon_entropy}</td></tr>`;
+    }
+    if (detail.tls_metadata) {
+      html += `<tr><td class="key">JA3 Hash:</td><td class="val">${detail.tls_metadata.ja3_fingerprint}</td></tr>`;
+    }
+    if (detail.beacon_period_seconds) {
+      html += `<tr><td class="key">Beacon Cadence:</td><td class="val">${detail.beacon_period_seconds}s</td></tr>`;
+    }
+    return html || `<tr><td class="key">Source:</td><td class="val">${a.generator_source}</td></tr>`;
+  }
+
+  window.toggleEvidenceRow = function(id) {
+    const expandRow = document.getElementById(`expand-${id}`);
+    const icon = document.getElementById(`icon-${id}`);
+    if (expandRow.style.display === 'none') {
+      expandRow.style.display = 'table-row';
+      if (icon) icon.className = 'fas fa-chevron-up';
+    } else {
+      expandRow.style.display = 'none';
+      if (icon) icon.className = 'fas fa-chevron-down';
+    }
+  };
+
+  document.getElementById('filterThreatClass').addEventListener('change', fetchAlerts);
+  document.getElementById('filterSeverity').addEventListener('change', fetchAlerts);
+  document.getElementById('searchInput').addEventListener('input', fetchAlerts);
+  document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+    document.getElementById('filterThreatClass').value = '';
+    document.getElementById('filterSeverity').value = '';
+    document.getElementById('searchInput').value = '';
+    fetchAlerts();
+  });
+
+  fetchAlerts();
+});
+</script>
+{% endblock %}

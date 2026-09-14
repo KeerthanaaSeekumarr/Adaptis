@@ -1,0 +1,412 @@
+/* ==========================================================================
+   ADAPTIS — Minimalist Cyber Threat Detection Console
+   Clean, Standardized Enterprise Design System (Dark & Light Modes)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Default Theme: Dark Mode */
+:root, [data-theme="dark"] {
+    --bg-body: #0f172a;
+    --bg-sidebar: #0b1324;
+    --bg-card: #1e293b;
+    --bg-card-hover: #334155;
+    --bg-input: #0f172a;
+    
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --accent: #38bdf8;
+    --accent-bg: rgba(56, 189, 248, 0.12);
+    --border: #334155;
+
+    --severity-critical: #ef4444;
+    --severity-critical-bg: rgba(239, 68, 68, 0.12);
+    
+    --severity-high: #f97316;
+    --severity-high-bg: rgba(249, 115, 22, 0.12);
+
+    --severity-medium: #f59e0b;
+    --severity-medium-bg: rgba(245, 158, 11, 0.12);
+
+    --severity-low: #38bdf8;
+    --severity-low-bg: rgba(56, 189, 248, 0.12);
+
+    --radius: 6px;
+}
+
+/* Light Mode */
+[data-theme="light"] {
+    --bg-body: #f8fafc;
+    --bg-sidebar: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    --bg-input: #ffffff;
+
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+
+    --accent: #0284c7;
+    --accent-bg: rgba(2, 132, 199, 0.08);
+    --border: #e2e8f0;
+
+    --severity-critical: #dc2626;
+    --severity-critical-bg: rgba(220, 38, 38, 0.08);
+
+    --severity-high: #ea580c;
+    --severity-high-bg: rgba(234, 88, 12, 0.08);
+
+    --severity-medium: #d97706;
+    --severity-medium-bg: rgba(217, 119, 6, 0.08);
+
+    --severity-low: #0284c7;
+    --severity-low-bg: rgba(2, 132, 199, 0.08);
+
+    --radius: 6px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    font-size: 13px;
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.mono, .font-mono {
+    font-family: 'JetBrains Mono', Consolas, monospace !important;
+}
+
+/* App Container Layout */
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 230px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+.sidebar .logo {
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 18px 20px;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 12px 8px;
+    margin: 0;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    transition: all 0.15s ease;
+    font-weight: 500;
+    font-size: 0.88rem;
+}
+
+.sidebar ul li a i {
+    font-size: 0.95rem;
+    width: 18px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.sidebar ul li a:hover {
+    color: var(--text-primary);
+    background: var(--bg-card-hover);
+}
+
+.sidebar ul li a.active {
+    color: var(--text-primary);
+    background: var(--accent-bg);
+    font-weight: 600;
+}
+
+.sidebar ul li a.active i {
+    color: var(--accent);
+}
+
+.system-status {
+    padding: 14px 18px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+}
+
+/* Main Content Area */
+.content {
+    flex-grow: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--bg-body);
+}
+
+/* Clean Cards */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Metrics Grid */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+}
+
+.metric h3 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin: 0 0 6px 0;
+}
+
+.metric p {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+/* Minimal Table System */
+.table-container {
+    overflow-x: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+#packetTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+    text-align: left;
+}
+
+#packetTable th {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+#packetTable td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+#packetTable tbody tr:hover {
+    background: var(--bg-card-hover);
+}
+
+/* Badges */
+.badge-threat {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+}
+
+.badge-ddos { background: var(--severity-critical-bg); color: var(--severity-critical); }
+.badge-c2 { background: var(--severity-high-bg); color: var(--severity-high); }
+.badge-dns { background: var(--severity-medium-bg); color: var(--severity-medium); }
+.badge-malware { background: rgba(168, 85, 247, 0.12); color: #a855f7; }
+.badge-recon { background: var(--severity-low-bg); color: var(--severity-low); }
+.badge-exfil { background: rgba(236, 72, 153, 0.12); color: #ec4899; }
+
+.badge-lab {
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Confidence Gauge Bar */
+.confidence-gauge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100px;
+}
+
+.confidence-bar-bg {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.confidence-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+}
+
+.confidence-high { background: var(--severity-critical); }
+.confidence-medium { background: var(--severity-high); }
+.confidence-low { background: var(--accent); }
+
+/* Minimal Evidence Panel */
+.evidence-panel {
+    background: var(--bg-body);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin: 8px 0;
+}
+
+.evidence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.evidence-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+}
+
+.kv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.kv-table td {
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.kv-table td.key {
+    color: var(--text-muted);
+    width: 45%;
+}
+
+.kv-table td.val {
+    color: var(--text-primary);
+}
+
+/* Minimal Pipeline Component */
+.minimal-pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 10px 0;
+}
+
+.minimal-stage {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    text-align: center;
+}
+
+.minimal-stage .title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.minimal-stage .value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 2px;
+}
+
+.minimal-arrow {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 5px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--bg-card-hover);
+}
+
+#entityGraphSvg {
+    width: 100%;
+    height: 520px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}

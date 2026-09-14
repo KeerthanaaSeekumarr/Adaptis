@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Minimal Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 4px;">
+  <div>
+    <h1 style="margin: 0; font-size: 1.35rem; font-weight: 700; color: var(--text-primary);">
+      Pipeline Status
+    </h1>
+  </div>
+  <div style="font-size: 0.78rem; color: var(--text-muted);" class="mono">
+    Mean Latency: <strong style="color: var(--accent);">1.20 ms</strong> &bull; Zero Drops
+  </div>
+</div>
+
+<!-- Minimal Stage Tracker Card -->
+<div class="card" style="padding: 16px;">
+  <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 12px;" class="mono">
+    STREAMING PROCESSING STAGES (8)
+  </div>
+
+  <div class="minimal-pipeline" id="pipelineStagesContainer">
+    <div style="text-align: center; color: var(--text-muted); padding: 15px; width: 100%;" class="mono">
+      Loading...
+    </div>
+  </div>
+</div>
+
+<!-- Minimal Summary Grid -->
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+  
+  <div class="card metric">
+    <h3>Bounded Latency</h3>
+    <p class="mono" style="color: var(--accent);">1.20 <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">ms</span></p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      SLA Target &lt; 5.0 ms
+    </div>
+  </div>
+
+  <div class="card metric">
+    <h3>Diode Packet Loss</h3>
+    <p class="mono" style="color: #10b981;">0.00%</p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      Optical diode isolation
+    </div>
+  </div>
+
+  <div class="card metric">
+    <h3>Flow Rate</h3>
+    <p class="mono">485.1k <span style="font-size: 0.85rem; font-weight: 500; color: var(--text-muted);">flows/s</span></p>
+    <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 4px;" class="mono">
+      Passive feature extraction
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  function loadPipelineStatus() {
+    fetch('/api/pipeline')
+      .then(res => res.json())
+      .then(data => {
+        renderStages(data.stages);
+      });
+  }
+
+  function renderStages(stages) {
+    const container = document.getElementById('pipelineStagesContainer');
+    container.innerHTML = stages.map((s, idx) => `
+      <div class="minimal-stage">
+        <div class="title">${s.name}</div>
+        <div class="value">${s.count.toLocaleString()}</div>
+      </div>
+      ${idx < stages.length - 1 ? '<div class="minimal-arrow">&rarr;</div>' : ''}
+    `).join('');
+  }
+
+  loadPipelineStatus();
+  setInterval(loadPipelineStatus, 3000);
+});
+</script>
+{% endblock %}

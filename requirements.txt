@@ -1,0 +1,10 @@
+Flask==3.0.3
+requests==2.32.3
+Flask-SQLAlchemy
+flask-socketio
+xgboost
+joblib
+scikit-learn
+openai
+groq
+elasticsearch

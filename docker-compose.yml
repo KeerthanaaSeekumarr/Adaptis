@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  adaptis-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: adaptis_cyber_diode
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./sentinel.db:/app/sentinel.db
+    restart: unless-stopped

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADAPTIS — Cyber Threat Console</title>
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <!-- Chart.js & D3.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Minimal Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-shield-halved" style="color: var(--accent);"></i> ADAPTIS
+        </div>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+
+      <ul>
+        <li>
+          <a href="/" class="{% if request.path == '/' or request.path == '/overview' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i> Overview
+          </a>
+        </li>
+
+        <li>
+          <a href="/alerts" class="{% if request.path == '/alerts' %}active{% endif %}">
+            <i class="fas fa-list-alt"></i> Alert Log
+          </a>
+        </li>
+
+        <li>
+          <a href="/graph" class="{% if request.path == '/graph' %}active{% endif %}">
+            <i class="fas fa-project-diagram"></i> Entity Graph
+          </a>
+        </li>
+
+        <li>
+          <a href="/pipeline" class="{% if request.path == '/pipeline' %}active{% endif %}">
+            <i class="fas fa-stream"></i> Pipeline Status
+          </a>
+        </li>
+      </ul>
+
+      <div class="system-status mono">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent);"></span>
+          <strong>DIODE STREAM ACTIVE</strong>
+        </div>
+        <div style="font-size: 0.72rem; color: var(--text-muted);">
+          Read-Only Passive Mirror
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      {% block content %}{% endblock %}
+
+      <div style="margin-top: 15px; font-size: 0.75rem; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border); padding-top: 10px;" class="mono">
+        ADAPTIS &bull; Passive Cyber Threat Engine
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('adaptis_theme', next);
+      updateToggleBtn(next);
+    }
+
+    function updateToggleBtn(theme) {
+      const btn = document.getElementById('themeToggleBtn');
+      if (btn) {
+        btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i> Light' : '<i class="fas fa-moon"></i> Dark';
+      }
+    }
+
+    const saved = localStorage.getItem('adaptis_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    updateToggleBtn(saved);
+  </script>
+
+  <!-- Global SocketIO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>
