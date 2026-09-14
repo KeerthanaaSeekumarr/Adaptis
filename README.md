@@ -35,11 +35,6 @@
 
 ---
 
-## Tech Stack
-
-- **Backend**: Python 3.11, Flask, Flask-SQLAlchemy, Flask-SocketIO
-- **Frontend**: HTML5, CSS3 Minimal Design System (Dark & Light Theme Mode Toggle), Chart.js 4.4, D3.js 7.8
-- **Containerization**: Docker, Docker Compose
 
 ---
 
