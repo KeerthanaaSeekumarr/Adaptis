@@ -1,9 +1,8 @@
 # ADAPTIS — AI-Based Cyber Threat Detection Engine in Unidirectional IP Traffic
 
 **Smart India Hackathon (SIH 2026) Submission**  
-**Problem Statement 26145** | **Organization**: NTRO | **Theme**: Cybersecurity
+**Problem Statement 26145** | **Organization**: NTRO | **Theme**: Blockchain & Cybersecurity
 
-Repository: `adaptis-pipeline`
 
 ---
 
